@@ -1,0 +1,247 @@
+﻿@model DAL.Models.University
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+
+<div class="container col-sm-12 form-horizontal">
+    @*Form for unviersity object*@
+    <form onsubmit="return SendToController()">
+        <h1 class="blue-heading">University Details<input id="Btn" style="margin-left:500px; width:200px" type="submit" class="btn btn-info" value="Edit" onclick="return edit()" /></h1>
+            
+        <div class="col-sm-6">
+                @Html.HiddenFor(model => model.Id);
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.Name, new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBoxFor(model => model.Name, new { @class = "form-control", @readonly = "readonly", @required = "required" })</div>
+                    <br />@Html.ValidationMessageFor(model => model.Name)
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.AlternateName, new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBoxFor(model => model.AlternateName, new { @class = "form-control", @readonly = "readonly" })</div>
+                    <div class="col-sm-4">@Html.ValidationMessageFor(model => model.AlternateName)</div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.WebAddress, new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBoxFor(model => model.WebAddress, new { @class = "form-control", @readonly = "readonly" })</div>
+                    <div class="col-sm-4">@Html.ValidationMessageFor(model => model.WebAddress)</div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.Sector, new { @class = "control-label" })</div>
+                    <div class="col-sm-6"><select class="form-control" id="Sector" name="Sector" disabled><option value="Government">Government</option><option value="Private">Private</option></select></div>
+                    <div class="col-sm-4">@Html.ValidationMessageFor(model => model.Sector)</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.Priority, new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBoxFor(model => model.Priority, new { @class = "form-control", @readonly = "readonly", @max = "5", @type="number" })</div>
+                    <div class="col-sm-4">@Html.ValidationMessageFor(model => model.Priority)</div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.LabelFor(model => model.Description, new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextAreaFor(model => model.Description, new { @class = "form-control", @readonly = "readonly" })</div>
+                    <div class="col-sm-4">@Html.ValidationMessageFor(model => model.Description)</div>
+                </div>
+            </div>
+    </form>
+
+    @*Form for adding campus*@
+    <div id="AddCampus">
+        <h3>Add Campus</h3>
+        <form onsubmit="return AddToTable()">
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.Label("Campus Title", new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBox("CampusTitle", null, new { @class = "form-control", @required = "required" })</div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.Label("Alternate Name", new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBox("Alternate", null, new { @class = "form-control", @required = "required" })</div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.Label("City", new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.DropDownList("CityId", null, new { @class = "form-control", @required = "required"})</div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3">@Html.Label("Address", new { @class = "control-label" })</div>
+                    <div class="col-sm-6">@Html.TextBox("Address", null, new { @class = "form-control", @required = "required" })</div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-3" style=""></div>
+                    <div class="col-sm-6"><input type="submit" class="btn btn-success" /></div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @*Table for displaying added campuses*@
+    <div class="col-sm-9">
+        <table class="table table-bordered table-hovered" id="mytable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Alternate</th>
+                    <th>City</th>
+                    <th class="Actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="TBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@*----------------Java Script-----------------*@
+<script>
+    //Global variables
+    var CampusArray = new Array();
+    var counter = 1;
+    
+    //To add campuses in the CampusArray and table
+    $(document).ready(function () {$("#CityId").chosen();
+        $('#AddCampus').prop("hidden",true);
+        $('#TBody').empty();
+        @foreach(var a in Model.UniversityCampusses)
+        {
+            <text>
+              var obj = new CampusCopy();
+            obj.Id=@a.Id;
+            obj.CampusTitle='@a.CampusTitle';
+            obj.AlternateName='@a.AlternateName';
+            obj.City= @a.CityId;
+            obj.Address='@a.Address';
+            obj.Count=counter++;
+            CampusArray.push(obj);
+            $('#TBody').append('<tr><td>'+obj.CampusTitle+'</td><td>'+obj.AlternateName+'</td><td>@a.City.Name</td><td class="Actions"><input type="submit" value="Delete" class="btn btn-danger " onclick="RemoveFromTable('+obj.Count+')"/></td></tr>');
+            </text>
+        }
+        $('.Actions').prop('hidden',true); });
+        
+     //To turn data fields enabled
+    function edit()
+    {
+        $('#Btn').removeAttr('onclick');
+        $('#Btn').attr('value','Save Changes');
+        $('#Btn').attr('class','btn btn-warning');
+        $('#Name').prop("readonly", false);
+        $('#AlternateName').prop("readonly", false);
+        $('#WebAddress').prop("readonly", false);
+        $('#Sector').prop("disabled", false);
+        $('#Priority').prop("readonly", false);
+        $('#Description').prop("readonly", false);
+        $('#AddCampus').prop("hidden",false);
+        $('.Actions').prop("hidden",false);
+        return false;
+    }
+
+    //To add campus in the table and CampusArray
+    function AddToTable()
+    {
+        var campustitle = document.getElementById("CampusTitle");
+        var alternatename = document.getElementById("Alternate");
+        var city = document.getElementById("CityId");
+        var address = document.getElementById("Address");
+        var obj = new CampusCopy();
+        obj.Id = 0;
+        obj.CampusTitle = campustitle.value;
+        obj.AlternateName = alternatename.value;
+        obj.CityId = city[city.selectedIndex].value;
+        obj.CityName = city[city.selectedIndex].innerHTML;
+        obj.Address = address.value;
+        obj.Count=counter++;
+        CampusArray.push(obj);
+        $("#TBody").append("<tr><td>" + obj.CampusTitle + "</td><td>" + obj.AlternateName + "</td><td>" + obj.CityName + "</td><td>" + "<button class='btn btn-danger' onclick=" + "'RemoveFromTable(" + obj.Count + ");'>Delete</button>" + "</td></tr>");
+        campustitle.value = "";
+        alternatename.value = "";
+        address.value = "";
+        return false;
+    }
+
+    //Removing a added campus from array/table
+    function RemoveFromTable(a)
+    {
+        $("#TBody").empty();
+        for (var j = 0; j < CampusArray.length; j++)
+        {
+            var b = CampusArray[j];
+            if(b.Count==a)
+            {
+                CampusArray.splice(j,1);
+                break;
+            }
+        }
+        for (var i = 0; i < CampusArray.length; i++)
+        {
+            $("#TBody").append("<tr><td>" + CampusArray[i].CampusTitle + "</td><td>" + CampusArray[i].AlternateName + "</td><td>" + CampusArray[i].CityName + "</td><td>" + "<button class='btn btn-danger' onclick=" + "'RemoveFromTable(" + (CampusArray[i].Count) + ");'>Delete</button>" + "</td></tr>");
+        }
+    }
+
+    //Send university object and array of campuses to controller
+    function SendToController()
+    {
+        if (CampusArray.length == 0)
+        {
+            alert("Add atleast 1 campus.")
+            return false;
+        }
+        var sector = document.getElementById("Sector");
+
+        var obj = new UniversityCopy();
+        obj.Id= document.getElementById("Id").value;
+        obj.Name = document.getElementById("Name").value;
+        obj.AlternateName = document.getElementById("AlternateName").value;
+        obj.WebAddress = document.getElementById("WebAddress").value;
+        obj.Sector = sector[sector.selectedIndex].value;
+        obj.Priority = document.getElementById("Priority").value;
+        obj.Description = document.getElementById("Description").value;
+
+        //Sending data
+        $.ajax({
+            url: '/AdminUniversity/EditUniversity',
+            dataType: "json",
+            type: 'POST',
+            data: JSON.stringify({ obj: obj, arr: CampusArray }),
+            contentType: 'application/json',
+            success: function (data) {
+                self.location = '/AdminUniversity/ViewAll'
+                return true;
+            },
+            error: function (xhr) {
+                alert(data);
+                return false;
+            }
+        });
+        return false;
+    }
+
+    //Campus class copy of UniversityCampus class given by entity framework
+    var CampusCopy= function()
+    {
+        this.Id; //This attribute is been reserved for the id given from the pre-entered campuses in database and will be used to update the campus or delete it from database
+        this.CampusTitle;
+        this.Address;
+        this.UniversityId
+        this.AlternateName;
+        this.CityId;
+        this.CityName;
+        this.Count; //To keep the counter in it so that this will be used to delete the CampusCopy object from CampusArray
+    }
+
+    //University class copy of University class given by entity framework
+    var UniversityCopy=function()
+    {
+        this.Id;
+        this.Name;
+        this.AlternateName;
+        this.WebAddress;
+        this.Sector;
+        this.Priority;
+        this.Description;
+    }
+</script>

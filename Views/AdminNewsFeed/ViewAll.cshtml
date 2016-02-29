@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewBag.Title = "ViewAll";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+    <div class="container">
+        <!-------------------------         your page will go here   --------------------------->
+        <h1 class="blue-heading page-header">All News</h1>
+        <div class="col-sm-10">
+            <table class="table table-bordered table-hover" id="mytable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Title</th>
+                        <th>University</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var a in Model)
+                    {
+                        <tr>
+                            <td>@a.Date</td>
+                            <td>@a.Title</td>
+                            <td>@a.University.Name</td>
+                            <td>
+                                <input class="btn btn-success" type="submit" value="Details" onclick="self.location='/AdminNewsFeed/Details?Id=@a.Id'" />
+                                <input class="btn btn-danger" type="submit" value="Delete" onclick="ConfirmDeletion(@a.Id)"/>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    function ConfirmDeletion(a) {
+        var check = confirm("Confirm Deletion?");
+        if (check == true) {
+            self.location = '/AdminNewsFeed/Delete/' + a;
+        }
+    }
+</script>

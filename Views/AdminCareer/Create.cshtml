@@ -1,0 +1,89 @@
+﻿@model DAL.Models.Career
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1 class="blue-heading page-header">Add Career</h1>
+
+<div class="container col-sm-10">
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.CareerName, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.TextBoxFor(model => model.CareerName, htmlAttributes: new { @class = "form-control" })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.CareerName)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.PersonalityTypeId, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.DropDownList("PersonalityTypeId", null, new { @class = "form-control" })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.PersonalityTypeId)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.Details, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.TextAreaFor(model => model.Details, htmlAttributes: new { @class = "form-control" })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.Details)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.Label("Degrees", new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.DropDownList("DegreeId", null, new { @class = "form-control", @multiple = "multiple" })</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-4"><input type="submit" class="btn btn-success" onclick="SendToController()" /></div>
+            </div>
+        </div>
+</div>
+
+@*--------------------JAVASCRIPT---------------------*@
+<script>
+    $('#DegreeId').chosen();
+    function SendToController()
+    {
+        //Making Degree Array
+        var darray= new Array();
+        var array = document.getElementById("DegreeId");
+        var length = array.length;
+        for(var i=0;i<length;i++)
+        {
+            if(array[i].selected)
+            {
+                darray.push(array[i].value);
+            }
+        }
+
+        //Making Career object in javascript
+        var obj = new CareerCopy();
+        obj.CareerName = document.getElementById("CareerName").value;
+        var personality = document.getElementById("PersonalityTypeId");
+        obj.PersonalityTypeId= personality[personality.selectedIndex].value;
+        obj.Details = document.getElementById("Details").value;
+
+        //Sending data
+        $.ajax({
+            url: '/AdminCareer/CreateCareer',
+            dataType: "json",
+            type: 'POST',
+            data: JSON.stringify({ obj: obj, arr: darray }),
+            contentType: 'application/json',
+            success: function (data) {
+                self.location = '/AdminCareer/ViewAll'
+                return true;
+            },
+            error: function (xhr) {
+                return false;
+            }
+        });
+    }
+
+    var CareerCopy= function()
+    {
+        this.Id;
+        this.CareerName;
+        this.PersonalityTypeId;
+        this.Details;
+    }
+</script>

@@ -1,0 +1,48 @@
+﻿@model IEnumerable<DAL.Models.UniversityCampuss>
+
+@{
+    ViewBag.Title = "ViewAll";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<div class="container">
+    <!-------------------------         your page will go here   --------------------------->
+    <h1 class="blue-heading page-header">View Campuses</h1>
+    <div class="col-sm-11">
+        <table class="table table-bordered" id="mytable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>University</th>
+                    <th>City</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var a in Model)
+                {
+                    <tr>
+                        <td>@a.CampusTitle</td>
+                        <td>@a.University.Name</td>
+                        <td>@a.City.Name</td>
+                        <td>
+                                <a href="/AdminCampus/Details?id=@a.Id"><input class="btn btn-success" type="submit" value="Details" /></a>
+                                <input class="btn btn-danger" type="submit" value="Delete" onclick="ConfirmDeletion(@a.Id)"/>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+<script>
+    function ConfirmDeletion(a)
+    {
+        var check = confirm("Confirm Deletion?(Deleting a campus will delete all the campus degrees)");
+        if(check==true)
+        {
+            self.location = '/AdminCampus/Delete/' + a;
+        }
+    }
+</script>

@@ -1,0 +1,113 @@
+﻿@model DAL.Models.Career
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+<h1 class="blue-heading page-header">Career Details</h1>
+<p id="Note">If you want to edit press this button&nbsp;&nbsp;&nbsp;&nbsp;<input class="btn btn-info" type="submit" value="Edit" onclick="Edit()" /></p>
+
+<div class="container col-sm-10">
+        @Html.HiddenFor(Model=>Model.Id)
+        <div class="form-horizontal">
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.CareerName, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.TextBoxFor(model => model.CareerName, htmlAttributes: new { @class = "form-control",@readonly="readonly" })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.CareerName)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.PersonalityTypeId, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.DropDownList("PersonalityTypeId", null, new { @class = "form-control",@disabled=true })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.PersonalityTypeId)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.LabelFor(model => model.Details, htmlAttributes: new { @class = "control-label" })</div>
+                <div class="col-sm-4">@Html.TextAreaFor(model => model.Details, htmlAttributes: new { @class = "form-control",@readonly="readonly" })</div>
+                <div class="col-sm-4">@Html.ValidationMessageFor(model => model.Details)</div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-sm-2">@Html.Label("Current Degrees", new { @class = "control-label" })</div>
+                <div class="col-sm-4">
+                    <select id="DegreeId" class="form-control" multiple>
+                        @foreach (var a in ViewBag.CurrentDegreeId)
+                        {
+                            <option value="@a.Degree.Id" selected>@a.Degree.DegreeName</option>}
+                        @foreach (var a in ViewBag.DegreeId)
+                        {
+                            <option value="@a.Id">@a.DegreeName</option> 
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" id="BtnDiv" hidden>
+                <div class="col-sm-2"></div>
+                <div class="col-sm-4"><input type="submit" class="btn btn-success" onclick="SendToController()"/></div>
+            </div>
+        </div>
+</div>
+
+@*-------------JAVASCRIPT---------------*@
+<script>
+    $(document).ready(function () {
+        $('#DegreeId').chosen();
+    });
+
+    function Edit() {
+        $('#CareerName').prop("readonly", false);
+        $('#PersonalityTypeId').prop("disabled", false);
+        $('#Details').prop("readonly", false);
+        $('#DegreeId').removeAttr("disabled",false);
+        $('#Note').empty();
+        $('#BtnDiv').prop("hidden", false);
+    }
+
+    function SendToController()
+    {
+        //Making Degrees Array
+        var darray = new Array();
+        var array = document.getElementById("DegreeId");
+        var length = array.length;
+        for (var i = 0; i < length; i++)
+        {
+            if (array[i].selected)
+            {
+                darray.push(array[i].value);
+            }
+        }
+
+        //Making career object
+        var object = new CareerCopy();
+        object.Id = document.getElementById("Id").value;
+        object.CareerName = document.getElementById("CareerName").value;
+        var personality = document.getElementById("PersonalityTypeId");
+        object.PersonalityTypeId = personality[personality.selectedIndex].value;
+        object.Details = document.getElementById("Details").value;
+
+        //Sending to action method
+        $.ajax({
+            url: '/AdminCareer/UpdateCareer',
+            dataType: "json",
+            type: 'POST',
+            data: JSON.stringify({ obj: object, arr: darray }),
+            contentType: 'application/json',
+            success: function (data) {
+                self.location = '/AdminCareer/ViewAll'
+                return true;
+            },
+            error: function (xhr) {
+                return false;
+            }
+        });
+    }
+
+    var CareerCopy = function () {
+        this.Id;
+        this.CareerName;
+        this.PersonalityTypeId;
+        this.Details;
+    }
+</script>
